@@ -34,6 +34,7 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
     private long       frame;       //
     private boolean    shooting;    // to tell if ship is shooting
     private boolean    isRunning;   // to tell if game is running
+    private int        score;       // player's score
 
     @Override
     public void init() {
@@ -58,6 +59,7 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
         ship = new Ship(250, 250, 0, .25, .98, .15, 12);
         numBullets = 0;        // start with no bullets on the screen
         shooting = false;      // when game starts ship is not shooting
+        score = 0;             // start with zero score
 
         asteroids = new Asteroid[100];
         
@@ -178,6 +180,21 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
 
         ship.draw(g);
 
+        // draw score in top-left
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Score: " + score, 10, 20);
+
+        // draw game over message when game has stopped
+        if (!isRunning) {
+            g.setFont(new Font("Arial", Font.BOLD, 36));
+            g.setColor(Color.RED);
+            g.drawString("GAME OVER", 140, 230);
+            g.setFont(new Font("Arial", Font.BOLD, 20));
+            g.setColor(Color.WHITE);
+            g.drawString("Final Score: " + score, 175, 270);
+        }
+
         // blit the completed off-screen buffer to the screen
         grfx.drawImage(offScrnImg, 0, 0, this);
 
@@ -200,6 +217,7 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
 
                     deleteBullet(b);
                     deleteAsteroid(i);
+                    score += 100;
                     b = numBullets;
                 }
             }
