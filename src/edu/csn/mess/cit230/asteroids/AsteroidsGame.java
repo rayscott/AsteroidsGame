@@ -69,17 +69,14 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
         }
 
         addKeyListener(this);
-        dimension.getSize();
         offScrnImg = createImage(dimension.width, dimension.height);
         g = offScrnImg.getGraphics();
-        //gameLoop = new Thread(this);
-        //gameLoop.start();
 
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // not used
     }
     
     public static void main( String[] args ) {
@@ -108,9 +105,9 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
 
     @Override
     public void start() {
-
-
-
+        isRunning = true;
+        gameLoop = new Thread(this);
+        gameLoop.start();
     }
 
     @Override
@@ -123,34 +120,37 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
     @Override
     public void run() {
 
-        startTime = System.currentTimeMillis();
+        while (isRunning) {
+            startTime = System.currentTimeMillis();
 
-        ship.move(dimension.width, dimension.height);
+            ship.move(dimension.width, dimension.height);
 
-        for (int i = 0; i < numBullets; i++) {
-            bullet[ i].move(dimension.width, dimension.height);
+            for (int i = 0; i < numBullets; i++) {
+                bullet[ i].move(dimension.width, dimension.height);
 
-            if (bullet[ i].getBulletDie() <= 0) {
-                deleteBullet(i);
-                i--;
+                if (bullet[ i].getBulletDie() <= 0) {
+                    deleteBullet(i);
+                    i--;
+                }
             }
-        }
 
-        updateAsteroids();
+            updateAsteroids();
 
-        if (shooting && ship.canShoot()) {
-            bullet[ numBullets] = ship.fire();
-            numBullets++;
-        }
-
-        repaint();
-
-        try {
-            endTime = System.currentTimeMillis();
-            if (frame - (endTime - startTime) < 0) {
-                Thread.sleep(1000L / FRAMES_PER_SECOND);
+            if (shooting && ship.canShoot() && numBullets < bullet.length) {
+                bullet[ numBullets] = ship.fire();
+                numBullets++;
             }
-        } catch (InterruptedException ignored) {
+
+            repaint();
+
+            try {
+                endTime = System.currentTimeMillis();
+                long sleepTime = frame - (endTime - startTime);
+                if (sleepTime > 0) {
+                    Thread.sleep(sleepTime);
+                }
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
@@ -164,15 +164,21 @@ public class AsteroidsGame extends Applet implements KeyListener, Runnable {
     @Override
     public void paint(Graphics grfx) {
 
-        grfx.setColor(Color.BLACK);
-        grfx.fillRect(0, 0, 500, 500);
+        // draw everything to the off-screen buffer to prevent flickering
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, dimension.width, dimension.height);
 
         for (int i = 0; i < numAstrd; i++) {
-            asteroids[ i].draw(grfx);
+            asteroids[ i].draw(g);
         }
 
-        ship.draw(grfx);
+        for (int i = 0; i < numBullets; i++) {
+            bullet[ i].draw(g);
+        }
 
+        ship.draw(g);
+
+        // blit the completed off-screen buffer to the screen
         grfx.drawImage(offScrnImg, 0, 0, this);
 
     }

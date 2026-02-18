@@ -39,19 +39,20 @@ public class Ship {
                 double rotation,
                 int shotDelay) {
         
+        this.x             = x;
         this.y             = y;
         this.angle         = angle;
-        this.accelerate    = accelerate;
+        this.acceleration  = accelerat;
         this.velocityDecay = velocityDecay;
         this.rotation      = rotation;
-        this.bulletDelay   = bulletDelay; 
-        
+        this.bulletDelay   = shotDelay;
+
         xVelocity   = 0;          // ship not moving
         yVelocity   = 0;          // ship not moving
         turnLeft    = false;      // ship not turning
         turnRight   = false;      // ship not turning
         accelerate  = false;      // not accelerating
-        active      = false;      // starts the game paused
+        active      = true;       // ship is active when game starts
         xPts        = new int[4]; // sets up array to hold 4 x points 
         yPts        = new int[4]; // sets up array to hold 4 y points
         bulletsLeft = 0;          // sets bullet count to zero
@@ -97,16 +98,13 @@ public class Ship {
             yPts[ i ] = ( int )( origXPts[ i ] * Math.sin( angle ) + 
                 origYPts[ i ] * Math.cos( angle ) + y + .5);    
     }
-        // If the game is active draw the ship green  
+        // If the game is active draw the ship green, otherwise dark gray
         if ( active ) {
-            
             g.setColor( Color.green );
-        }
-        
-        else {
+        } else {
             g.setColor( Color.darkGray );
-            g.fillPolygon( xPts, yPts, 4 );
         }
+        g.fillPolygon( xPts, yPts, 4 );
     }
     
     /** the move method defines all of the movements for the ship */
